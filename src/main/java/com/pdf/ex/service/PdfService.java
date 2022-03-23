@@ -204,6 +204,7 @@ public class PdfService {
     public ResponseEntity<?> partialUpdatePdf(NewPdfDto modifiedPdfDto, int id) throws IOException {
         Optional<Pdf> pdfEntity = pdfRepository.findById(id);
         Pdf pdf =new Pdf();
+        PdfDto pdfDto= new PdfDto();
 
         if (!pdfEntity.isPresent()) {
 
@@ -216,27 +217,30 @@ public class PdfService {
              pdf=pdfEntity.get();
 
             //modifico il valore 
+            
+            
+            if(modifiedPdfDto.getTitolo()!= null){
             pdf.setTitolo(modifiedPdfDto.getTitolo());
-
-            if (modifiedPdfDto.getLista() == null || modifiedPdfDto.getNumeroColonne() == null) {
-
-                pdf.setBase64(null);
-               
-
             }
+          
             
-            else if(modifiedPdfDto.getLista() != null & modifiedPdfDto.getNumeroColonne() != null){
+            if(modifiedPdfDto.getLista() != null && modifiedPdfDto.getNumeroColonne() != null){
             
-                pdf=generatePdf.creoPdfEntity(modifiedPdfDto);
+                Pdf _pdf=generatePdf.creoPdfEntity(modifiedPdfDto);
                 
-                pdf.setTitolo(modifiedPdfDto.getTitolo());
+                pdf.setBase64(_pdf.getBase64());
                         
             } 
+                pdf =pdfRepository.save(pdf);
                 
+                
+                pdfDto.setId(pdf.getId());
+                pdfDto.setBase64(pdf.getBase64());
+                pdfDto.setTitolo(pdf.getTitolo());
         }
        return ResponseEntity//
                         .status(HttpStatus.OK)
-                        .body(pdf);
+                        .body(pdfDto);
 
     }
 
