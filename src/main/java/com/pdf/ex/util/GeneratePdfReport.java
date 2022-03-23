@@ -15,6 +15,9 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.pdf.ex.dto.NewPdfDto;
+import com.pdf.ex.dto.PdfDto;
+import com.pdf.ex.entity.Pdf;
+import java.io.BufferedReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,17 +25,24 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.springframework.stereotype.Component;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class GeneratePdfReport {
+
+    @Autowired
+    Base64Util base64;
 
     private static final Logger logger = LoggerFactory.getLogger(GeneratePdfReport.class);
 
@@ -54,18 +64,7 @@ public class GeneratePdfReport {
             p.setSpacingAfter(20);
             p.setAlignment(1); // Center
 
-//            PdfPCell hcell;
-//            hcell = new PdfPCell(new Phrase("Uno", headFont));
-//            hcell.setHorizontalAlignment(Element.ALIGN_CENTER);
-//            table.addCell(hcell);
-//
-//            hcell = new PdfPCell(new Phrase("Due", headFont));
-//            hcell.setHorizontalAlignment(Element.ALIGN_CENTER);
-//            table.addCell(hcell);
-//
-//            hcell = new PdfPCell(new Phrase("Tre", headFont));
-//            hcell.setHorizontalAlignment(Element.ALIGN_CENTER);
-//            table.addCell(hcell);
+
             for (Object item : newPdfDto.getLista()) {
 
                 PdfPCell cell;
@@ -102,4 +101,33 @@ public class GeneratePdfReport {
         return filePath;
     }
 
+    public Pdf creoPdfEntity(NewPdfDto newPdfDto) throws FileNotFoundException, IOException {
+
+        String pathPdf = createReport(newPdfDto);
+
+        Pdf pdfEntity = new Pdf();
+        if (!pathPdf.isEmpty()) {
+
+            String cod = "";
+
+            File filePdf = new File(pathPdf);
+
+            InputStream stream = new FileInputStream(filePdf);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                cod += br.readLine();
+            }
+
+            String codifica = base64.encode(cod);
+
+            pdfEntity.setTitolo(newPdfDto.getTitolo());
+            pdfEntity.setBase64(codifica);
+
+        }
+
+        return pdfEntity;
+    }
 }

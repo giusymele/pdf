@@ -143,61 +143,39 @@ public class PdfService {
         } else {
             return ResponseEntity//
                     .status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body("pdf non trovato");
+                    .body("pdf non trovati");
         }
 
     }
 
     public ResponseEntity deletePdfById(int id) {
 
-        Optional<Pdf> pdfEnity = pdfRepository.findById(id);
-
         if (pdfRepository.findById(id).isPresent()) {
-            Optional<Pdf> pdfEntity = pdfRepository.findById(id);
-
-            Pdf pdf = pdfEntity.get();
-
-            //setto l'oggetto che mi faccio ritornare dal metodo per confermare l'eliminazione
-            PdfDto pdfDto = new PdfDto();
-
-            pdfDto.setId(pdf.getId());
-            pdfDto.setTitolo(pdf.getTitolo());
-            pdfDto.setBase64(pdf.getBase64());
 
             pdfRepository.deleteById(id);
 
             return ResponseEntity//
                     .status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(pdfDto);
+                    .build();
+
         } else {
             return ResponseEntity//
                     .status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON)
                     .body("pdf non trovato");
         }
 
     }
 
-    public ResponseEntity updatePdf(PdfDto pdfDto) {
+    public ResponseEntity updatePdf(NewPdfDto modifiedPdfDto, int id) throws IOException {
 
-        // PdfDto pdfDto= new PdfDto();
-        Pdf pdfEnity = new Pdf();
-        //valorizzp l'enity
-        pdfEnity.setId(pdfDto.getId());
-        pdfEnity.setTitolo(pdfDto.getTitolo());
-        pdfEnity.setBase64(pdfDto.getBase64());
-
-        //salvo l'entità 
-        pdfRepository.save(pdfEnity);
+        Pdf pdfEntity = generatePdf.creoPdfEntity(modifiedPdfDto);
 
         //controllo se l'id esiste
-        if (pdfRepository.findById(pdfDto.getId()).isPresent()) {
+        if (pdfRepository.findById(id).isPresent()) {
             //se è presente lo modifico 
-
+            pdfEntity.setId(id);
             //salvo l'entità 
-            pdfRepository.save(pdfEnity);
+            pdfRepository.save(pdfEntity);
 
             return ResponseEntity//
                     .status(HttpStatus.OK)
@@ -206,13 +184,60 @@ public class PdfService {
 
         } else {
             //salvo l'entità 
-            pdfRepository.save(pdfEnity);
+            pdfEntity = pdfRepository.save(pdfEntity);
+
+            PdfDto pdfDto = new PdfDto();
+
+            pdfDto.setId(pdfEntity.getId());
+            pdfDto.setTitolo(pdfEntity.getTitolo());
+            pdfDto.setBase64(pdfEntity.getBase64());
+
             return ResponseEntity//
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(pdfDto);
-            //creo il pdf 
+
         }
 
     }
+
+    public ResponseEntity<?> partialUpdatePdf(NewPdfDto modifiedPdfDto, int id) throws IOException {
+        Optional<Pdf> pdfEntity = pdfRepository.findById(id);
+        Pdf pdf =new Pdf();
+
+        if (!pdfEntity.isPresent()) {
+
+            return ResponseEntity//
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("pdf non trovato");
+
+        } else {
+
+             pdf=pdfEntity.get();
+
+            //modifico il valore 
+            pdf.setTitolo(modifiedPdfDto.getTitolo());
+
+            if (modifiedPdfDto.getLista() == null || modifiedPdfDto.getNumeroColonne() == null) {
+
+                pdf.setBase64(null);
+               
+
+            }
+            
+            else if(modifiedPdfDto.getLista() != null & modifiedPdfDto.getNumeroColonne() != null){
+            
+                pdf=generatePdf.creoPdfEntity(modifiedPdfDto);
+                
+                pdf.setTitolo(modifiedPdfDto.getTitolo());
+                        
+            } 
+                
+        }
+       return ResponseEntity//
+                        .status(HttpStatus.OK)
+                        .body(pdf);
+
+    }
+
 }

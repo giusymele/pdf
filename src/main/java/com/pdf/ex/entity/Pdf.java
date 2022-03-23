@@ -25,7 +25,7 @@ public class Pdf {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Column(name = "titolo",nullable = false)
+    @Column(name = "titolo",nullable = true)
     private String titolo;
     @Column(name = "base64",nullable = true) @Lob
     private String base64;

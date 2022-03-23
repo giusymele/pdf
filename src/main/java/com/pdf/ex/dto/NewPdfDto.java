@@ -18,11 +18,11 @@ public class NewPdfDto implements Serializable {
     
 
     @JsonProperty("titolo")
-    private String titolo;
+    private String titolo= null;
     //private int numeroRighe;
     @JsonProperty("numeroColonne")
-    private Integer numeroColonne;
+    private Integer numeroColonne=null;
     @JsonProperty("lista")
-    private List<String> lista;
+    private List<String> lista=null;
 
 }

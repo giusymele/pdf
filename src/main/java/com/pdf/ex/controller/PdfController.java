@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,14 +41,14 @@ public class PdfController {
 
     @PostMapping("/pdf")
     public ResponseEntity<?> createpdf(@RequestBody NewPdfDto newPdfDto) {
-
+        var logger=  Logger.getLogger(PdfController.class.getName());
         try {
             return pdfService.creoPdf(newPdfDto);
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(PdfController.class.getName()).log(Level.SEVERE, null, ex);
+          logger.log(Level.SEVERE, null,ex);
         } catch (IOException ex) {
-            Logger.getLogger(PdfController.class.getName()).log(Level.SEVERE, null, ex);
+           logger.log(Level.SEVERE, null, ex);
         }
         return ResponseEntity//
 
@@ -75,9 +76,17 @@ public class PdfController {
     }
 
     @PutMapping("/pdf/{id}")
-    public ResponseEntity<?> updatePdf(@RequestBody PdfDto pdfDto){
+    public ResponseEntity<?> updatePdf(@RequestBody NewPdfDto newPdfDto, @PathVariable int id) throws IOException{
     
-        return pdfService.updatePdf(pdfDto);
+        return pdfService.updatePdf(newPdfDto, id);
     }
     
+    
+    @PatchMapping("/pdf/{id}")
+    public ResponseEntity<?> partiaUpdatePdf(@RequestBody NewPdfDto newPdfDto, @PathVariable int id) throws IOException{
+    
+        return pdfService.partialUpdatePdf(newPdfDto, id);
+    }
+    
+
 }
