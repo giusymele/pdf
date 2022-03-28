@@ -58,12 +58,13 @@
             <artifactId>itextpdf</artifactId>
             <version>5.5.10</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.lowagie/itext -->
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
-            <version>5.5.10</version>
-            <type>jar</type>
+            <version>2.1.7</version>
         </dependency>
+
     </dependencies>
 
     <build>
